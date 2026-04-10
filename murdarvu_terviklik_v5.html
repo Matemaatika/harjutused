@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harilike murdude ülesanded</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f9f9f6; color: #1a1a18; margin: 0; padding: 0; }
+  #wrap { padding: 1.25rem 1rem; max-width: 680px; margin: 0 auto; }
+  h2 { font-size: 18px; font-weight: 500; margin: 0 0 0.2rem; }
+  .sub { font-size: 13px; color: #666; margin: 0 0 1rem; }
+  .name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+  .name-row label { font-size: 14px; color: #666; white-space: nowrap; }
+  .name-row input { max-width: 200px; font-size: 14px; padding: 6px 10px; border: 0.5px solid #bbb; border-radius: 8px; background: #f5f5f2; color: #1a1a18; outline: none; }
+  .section-title { font-size: 15px; font-weight: 500; margin: 1.25rem 0 0.6rem; border-bottom: 0.5px solid #ddd; padding-bottom: 6px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+  .pcard { background: #fff; border: 0.5px solid #ddd; border-radius: 12px; padding: 0.85rem; }
+  .pnr { font-size: 11px; color: #888; margin-bottom: 6px; }
+  .frow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; font-size: 15px; font-weight: 500; }
+  .frac span { line-height: 1.25; text-align: center; }
+  .frac .fl { width: 100%; height: 1.5px; background: #1a1a18; margin: 2px 0; }
+  .op { font-size: 16px; color: #666; }
+  .eq { font-size: 16px; color: #666; }
+  .ans-frac { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .ans-frac input { width: 36px; text-align: center; font-size: 14px; padding: 2px 3px; border: 0.5px solid #bbb; border-radius: 6px; background: #f5f5f2; color: #1a1a18; outline: none; }
+  .ans-frac .afl { width: 36px; height: 1.5px; background: #1a1a18; }
+  .ans-frac .dfix { font-size: 14px; font-weight: 500; color: #666; }
+  input.ok { border-color: #2a7a3b !important; background: #eaf3de !important; }
+  input.bad { border-color: #b03030 !important; background: #fcebeb !important; }
+  .hint { font-size: 11px; margin-top: 5px; min-height: 13px; color: #b03030; }
+  .hint.ok { color: #2a7a3b; }
+
+  .nl-section { background: #fff; border: 0.5px solid #ddd; border-radius: 12px; padding: 0.9rem 1rem; margin-bottom: 0.6rem; }
+  .nl-lbl { font-size: 13px; color: #666; margin-bottom: 8px; }
+  .nl-fracs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .chip { background: #f5f5f2; border: 0.5px solid #bbb; border-radius: 8px; padding: 3px 9px; font-size: 13px; cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; user-select: none; }
+  .chip .cfl { width: 100%; height: 1.5px; background: #1a1a18; margin: 1px 0; }
+  .chip.placed { opacity: 0.3; cursor: default; }
+  .chip.selected { outline: 2px solid #378add; }
+  .numline-wrap { position: relative; height: 52px; }
+  .drop-slot { position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; width: 42px; }
+  .drop-box { width: 38px; height: 24px; border: 1px dashed #bbb; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #aaa; background: #f5f5f2; cursor: pointer; }
+  .drop-box.filled { border-style: solid; border-color: #378add; background: #e6f1fb; color: #185fa5; }
+  .drop-box.ok-box { border-color: #2a7a3b; background: #eaf3de; color: #2a7a3b; }
+  .drop-box.bad-box { border-color: #b03030; background: #fcebeb; color: #b03030; }
+
+  .actions { display: flex; gap: 10px; margin-top: 1.25rem; flex-wrap: wrap; }
+  button { font-size: 13px; padding: 6px 18px; border-radius: 8px; border: 0.5px solid #bbb; background: transparent; color: #1a1a18; cursor: pointer; }
+  button:hover { background: #f0f0ec; }
+  button.primary { background: #e6f1fb; color: #185fa5; border-color: #b5d4f4; }
+  button.primary:hover { opacity: 0.85; }
+
+  #result-screen { display: none; padding: 1.25rem 1rem; max-width: 680px; margin: 0 auto; }
+  .rhead { text-align: center; margin-bottom: 1.25rem; }
+  .rname { font-size: 20px; font-weight: 500; }
+  .rbig { font-size: 44px; font-weight: 500; line-height: 1; }
+  .rlbl { font-size: 13px; color: #666; }
+  .rverdict { font-size: 15px; color: #666; margin-top: 6px; }
+  .rgrid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-top: 0.75rem; }
+  .rcard { background: #fff; border: 0.5px solid #ddd; border-radius: 8px; padding: 0.65rem; font-size: 12px; }
+  .rcard.cok { border-color: #2a7a3b; background: #eaf3de; }
+  .rcard.cbad { border-color: #b03030; background: #fcebeb; }
+  .rnr { font-size: 10px; color: #888; margin-bottom: 3px; }
+  .rexpr { font-weight: 500; }
+  .rans { font-size: 11px; color: #666; margin-top: 2px; }
+  .rans.rbad { color: #b03030; }
+  .nl-res-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; border-bottom: 0.5px solid #eee; }
+  .nl-res-row:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <h2>Harilike murdude ülesanded</h2>
+  <p class="sub">Kaks ülesannet — liitmine/lahutamine ja arvkiir</p>
+  <div class="name-row">
+    <label>Eesnimi:</label>
+    <input type="text" id="sname" placeholder="Sinu eesnimi..." />
+  </div>
+
+  <div class="section-title">1. ülesanne — liitmine ja lahutamine</div>
+  <p class="sub" style="margin-top:-0.4rem;">Ühenimelised murrud — kirjuta ainult lugeja.</p>
+  <div class="grid" id="problems"></div>
+
+  <div class="section-title">2. ülesanne — murrud arvkiirel</div>
+  <p class="sub" style="margin-top:-0.4rem;">Klõpsa murdule, siis klõpsa selle kohale arvkiirel.</p>
+  <div id="nl-tasks"></div>
+
+  <div class="actions">
+    <button class="primary" onclick="checkAll()">Kontrolli kõiki</button>
+    <button onclick="newSet()">Uued ülesanded</button>
+  </div>
+</div>
+
+<div id="result-screen">
+  <div class="rhead">
+    <div class="rname" id="res-name"></div>
+    <div class="rbig" id="res-score"></div>
+    <div class="rlbl">õiget vastust kokku</div>
+    <div class="rverdict" id="res-verdict"></div>
+  </div>
+  <div class="section-title" style="max-width:680px;margin:0.5rem auto 0.4rem;">1. ülesanne</div>
+  <div class="rgrid" id="res-grid" style="max-width:680px;margin:0 auto;"></div>
+  <div class="section-title" style="max-width:680px;margin:1rem auto 0.4rem;">2. ülesanne</div>
+  <div id="res-nl" style="max-width:680px;margin:0 auto;"></div>
+  <div class="actions" style="justify-content:center;margin-top:1.25rem;">
+    <button class="primary" onclick="tryAgain()">Proovi uuesti</button>
+  </div>
+</div>
+
+<script>
+function gcd(a,b){return b===0?a:gcd(b,a%b);}
+function simplify(n,d){if(n===0)return[0,1];const g=gcd(Math.abs(n),Math.abs(d));return[n/g,d/g];}
+function fracStr(n,d){return d===1?`${n}`:`${n}/${d}`;}
+
+function genSame(){
+  const denom=Math.floor(Math.random()*13)+3;
+  const op=Math.random()<0.5?'+':'-';
+  let a,b;
+  if(op==='+'){
+    a=Math.floor(Math.random()*(denom-1))+1;
+    b=Math.floor(Math.random()*(denom-a))+1;
+  } else {
+    b=Math.floor(Math.random()*(denom-1))+1;
+    a=b+Math.floor(Math.random()*(denom-b))+1;
+    if(a>denom)a=denom;
+    if(a===b)a=Math.min(a+1,denom);
+  }
+  const raw=op==='+'?a+b:a-b;
+  const[sN,sD]=simplify(raw,denom);
+  return{a,b,denom,op,ansNum:sN,ansDen:sD};
+}
+
+function genNLTask(){
+  const denom=Math.floor(Math.random()*8)+4;
+  const used=new Set();
+  const fracs=[];
+  let tries=0;
+  while(fracs.length<5&&tries<60){
+    tries++;
+    const n=Math.floor(Math.random()*(denom-1))+1;
+    if(!used.has(n)){used.add(n);fracs.push({n,d:denom,val:n/denom});}
+  }
+  fracs.sort((a,b)=>a.val-b.val);
+  return{denom,fracs,slots:Array(fracs.length).fill(null)};
+}
+
+let problems=[], nlTasks=[], dragItem=null;
+
+function newSet(){
+  problems=Array.from({length:15},genSame);
+  nlTasks=Array.from({length:10},genNLTask);
+  document.getElementById('result-screen').style.display='none';
+  document.getElementById('wrap').style.display='block';
+  renderProblems();
+  renderNL();
+}
+
+function renderProblems(){
+  const c=document.getElementById('problems');
+  c.innerHTML='';
+  problems.forEach((p,i)=>{
+    const card=document.createElement('div');
+    card.className='pcard';
+    card.innerHTML=`
+      <div class="pnr">${i+1}.</div>
+      <div class="frow">
+        <div class="frac"><span>${p.a}</span><div class="fl"></div><span>${p.denom}</span></div>
+        <span class="op">${p.op}</span>
+        <div class="frac"><span>${p.b}</span><div class="fl"></div><span>${p.denom}</span></div>
+        <span class="eq">=</span>
+        <div class="ans-frac">
+          <input type="text" id="num-${i}" placeholder="?" />
+          <div class="afl"></div>
+          <span class="dfix">${p.denom}</span>
+        </div>
+      </div>
+      <div class="hint" id="hint-${i}"></div>`;
+    c.appendChild(card);
+    card.querySelector(`#num-${i}`).addEventListener('keydown',e=>{
+      if(e.key==='Enter'){const nx=document.getElementById(`num-${i+1}`);if(nx)nx.focus();}
+    });
+  });
+  document.getElementById('num-0').focus();
+}
+
+function renderNL(){
+  const c=document.getElementById('nl-tasks');
+  c.innerHTML='';
+  nlTasks.forEach((task,ti)=>{
+    const sec=document.createElement('div');
+    sec.className='nl-section';
+    const shuffled=[...task.fracs].sort(()=>Math.random()-0.5);
+    const W=540;
+    const slots=task.fracs.map((f,si)=>({f,px:Math.round(22+f.val*(W-44)),si}));
+
+    let html=`<div class="nl-lbl"><strong>${ti+1}.</strong> Nimetaja on <strong>${task.denom}</strong></div>`;
+    html+=`<div class="nl-fracs" id="chips-${ti}">`;
+    shuffled.forEach((f,fi)=>{
+      html+=`<div class="chip" id="chip-${ti}-${fi}" data-ti="${ti}" data-fi="${fi}" data-n="${f.n}" data-d="${f.d}">
+        <span>${f.n}</span><div class="cfl"></div><span>${f.d}</span></div>`;
+    });
+    html+=`</div>`;
+    html+=`<div class="numline-wrap">
+      <svg viewBox="0 0 ${W} 38" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:38px;display:block;">
+        <line x1="16" y1="19" x2="${W-16}" y2="19" stroke="#aaa" stroke-width="1.5"/>
+        <line x1="16" y1="13" x2="16" y2="25" stroke="#aaa" stroke-width="1.5"/>
+        <line x1="${W-16}" y1="13" x2="${W-16}" y2="25" stroke="#aaa" stroke-width="1.5"/>
+        <text x="16" y="35" text-anchor="middle" font-size="9" fill="#888">0</text>
+        <text x="${W-16}" y="35" text-anchor="middle" font-size="9" fill="#888">1</text>
+        ${slots.map(({px})=>`<line x1="${px}" y1="14" x2="${px}" y2="24" stroke="#ccc" stroke-width="1"/>`).join('')}
+      </svg>
+      ${slots.map(({px,si})=>`
+        <div class="drop-slot" style="left:${px}px;top:0;">
+          <div class="drop-box" id="dbox-${ti}-${si}">?</div>
+        </div>`).join('')}
+    </div>`;
+    html+=`<div class="hint" id="nl-hint-${ti}"></div>`;
+    sec.innerHTML=html;
+    c.appendChild(sec);
+
+    sec.querySelectorAll('.chip').forEach(chip=>{
+      chip.setAttribute('draggable','true');
+      chip.addEventListener('dragstart',e=>{
+        if(chip.classList.contains('placed')){e.preventDefault();return;}
+        dragItem={ti:+chip.dataset.ti,fi:+chip.dataset.fi,n:+chip.dataset.n,d:+chip.dataset.d};
+      });
+      chip.addEventListener('click',()=>{
+        if(chip.classList.contains('placed'))return;
+        const already=dragItem&&dragItem.ti===ti&&dragItem.fi===+chip.dataset.fi;
+        document.querySelectorAll('.chip').forEach(ch=>ch.classList.remove('selected'));
+        if(already){dragItem=null;}
+        else{dragItem={ti:+chip.dataset.ti,fi:+chip.dataset.fi,n:+chip.dataset.n,d:+chip.dataset.d};chip.classList.add('selected');}
+      });
+    });
+    slots.forEach(({si})=>{
+      const box=document.getElementById(`dbox-${ti}-${si}`);
+      box.addEventListener('dragover',e=>e.preventDefault());
+      box.addEventListener('drop',e=>{e.preventDefault();if(dragItem&&dragItem.ti===ti)placeFrac(ti,si,dragItem,sec);});
+      box.addEventListener('click',()=>{if(dragItem&&dragItem.ti===ti)placeFrac(ti,si,dragItem,sec);});
+    });
+  });
+}
+
+function placeFrac(ti,si,item,sec){
+  const task=nlTasks[ti];
+  const prev=task.slots[si];
+  if(prev){
+    const old=sec.querySelector(`.chip[data-ti="${ti}"][data-n="${prev.n}"][data-d="${prev.d}"]`);
+    if(old){old.classList.remove('placed','selected');}
+  }
+  task.slots[si]={n:item.n,d:item.d};
+  const chip=sec.querySelector(`#chip-${ti}-${item.fi}`);
+  if(chip){chip.classList.add('placed');chip.classList.remove('selected');}
+  const box=document.getElementById(`dbox-${ti}-${si}`);
+  if(box){box.textContent=`${item.n}/${item.d}`;box.className='drop-box filled';}
+  dragItem=null;
+  document.querySelectorAll('.chip').forEach(ch=>ch.classList.remove('selected'));
+}
+
+function checkAll(){
+  const name=(document.getElementById('sname').value.trim())||'Õpilane';
+  let correct=0,total=0;
+  const p1res=[];
+
+  problems.forEach((p,i)=>{
+    total++;
+    const nv=document.getElementById('num-'+i).value.trim();
+    const hint=document.getElementById('hint-'+i);
+    const inp=document.getElementById('num-'+i);
+    const expr=`${p.a}/${p.denom} ${p.op} ${p.b}/${p.denom}`;
+    const correctAns=fracStr(p.ansNum,p.ansDen);
+    if(!nv){inp.className='bad';hint.textContent='Vastus puudub';hint.className='hint';p1res.push({expr,userAns:'—',correctAns,ok:false});return;}
+    const un=parseInt(nv);
+    const[sUN,sUD]=simplify(un,p.denom);
+    const ok=sUN===p.ansNum&&sUD===p.ansDen;
+    if(ok){correct++;inp.className='ok';hint.textContent='✓';hint.className='hint ok';}
+    else{inp.className='bad';hint.textContent=`Vastus: ${correctAns}`;hint.className='hint';}
+    p1res.push({expr,userAns:`${un}/${p.denom}`,correctAns,ok});
+  });
+
+  let nlC=0,nlT=0;
+  const nlRows=[];
+  nlTasks.forEach((task,ti)=>{
+    let taskOk=0;
+    task.fracs.forEach((f,si)=>{
+      total++;nlT++;
+      const placed=task.slots[si];
+      const box=document.getElementById(`dbox-${ti}-${si}`);
+      if(!placed){if(box)box.className='drop-box bad-box';return;}
+      const ok=placed.n===f.n&&placed.d===f.d;
+      if(ok){correct++;nlC++;taskOk++;if(box)box.className='drop-box ok-box';}
+      else{if(box)box.className='drop-box bad-box';}
+    });
+    const h=document.getElementById('nl-hint-'+ti);
+    if(h){h.textContent=taskOk===task.fracs.length?'Kõik õiged!':'';h.className=taskOk===task.fracs.length?'hint ok':'hint';}
+    nlRows.push({ti,denom:task.denom,ok:taskOk,total:task.fracs.length});
+  });
+
+  showResults(name,correct,total,p1res,nlC,nlT,nlRows);
+}
+
+function showResults(name,correct,total,p1res,nlC,nlT,nlRows){
+  document.getElementById('wrap').style.display='none';
+  const rs=document.getElementById('result-screen');
+  rs.style.display='block';
+  document.getElementById('res-name').textContent=name;
+  document.getElementById('res-score').textContent=`${correct}/${total}`;
+  const pct=correct/total;
+  const msgs=['Proovi veel kord!','Harjuta edasi!','Väga tubli!','Suurepärane!','Täiuslik!'];
+  document.getElementById('res-verdict').textContent=msgs[pct<0.3?0:pct<0.5?1:pct<0.7?2:pct<1?3:4];
+
+  const g=document.getElementById('res-grid');
+  g.innerHTML='';
+  p1res.forEach((r,i)=>{
+    const card=document.createElement('div');
+    card.className='rcard '+(r.ok?'cok':'cbad');
+    card.innerHTML=`<div class="rnr">${i+1}.</div><div class="rexpr">${r.expr}</div>
+      ${r.ok?`<div class="rans">&#10003; ${r.correctAns}</div>`:`<div class="rans rbad">Sinu: ${r.userAns} &rarr; ${r.correctAns}</div>`}`;
+    g.appendChild(card);
+  });
+
+  const nl=document.getElementById('res-nl');
+  nl.innerHTML=`<p style="font-size:13px;color:#666;margin:0 0 0.5rem;">Arvkiir kokku: <strong>${nlC}/${nlT}</strong></p>`;
+  nlRows.forEach(r=>{
+    const ok=r.ok===r.total;
+    nl.innerHTML+=`<div class="nl-res-row">
+      <span style="color:#888;min-width:20px;">${r.ti+1}.</span>
+      <span style="color:#666;">Nimetaja ${r.denom}</span>
+      <span style="margin-left:auto;color:${ok?'#2a7a3b':'#b03030'};">${r.ok}/${r.total}</span>
+    </div>`;
+  });
+}
+
+function tryAgain(){
+  document.getElementById('result-screen').style.display='none';
+  document.getElementById('wrap').style.display='block';
+  newSet();
+}
+
+newSet();
+</script>
+</body>
+</html>
